@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
+
+
 import {
   View,
   Text,
@@ -22,6 +25,7 @@ interface Product {
   quantity: number;
   daysLeft: number;
 }
+
 
 const mockProducts: Product[] = [
   {
@@ -63,6 +67,7 @@ const mockProducts: Product[] = [
 ];
 
 export default function DashboardScreen() {
+  const router = useRouter();
   const [barcodeInput, setBarcodeInput] = useState('');
   const [products] = useState<Product[]>(mockProducts);
 
@@ -137,6 +142,17 @@ export default function DashboardScreen() {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Add Product Info Button */}
+<View style={styles.addButtonContainer}>
+  <TouchableOpacity
+    style={styles.addButton}
+    onPress={() => router.push('/add-products')}
+  >
+    <Text style={styles.addButtonText}>➕ Add Product Info</Text>
+  </TouchableOpacity>
+</View>
+
 
         {/* Products List */}
         <View style={styles.productsContainer}>
@@ -220,4 +236,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
   },
+  addButtonContainer: {
+  paddingHorizontal: 20,
+  marginBottom: 12,
+},
+addButton: {
+  backgroundColor: '#10B981', // Emerald green 🌿
+  paddingVertical: 14,
+  borderRadius: 12,
+  alignItems: 'center',
+},
+addButtonText: {
+  color: '#FFFFFF',
+  fontSize: 16,
+  fontWeight: '600',
+},
+
 });
