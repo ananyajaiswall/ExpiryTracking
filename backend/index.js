@@ -5,6 +5,7 @@ require('dotenv').config();
 const cron = require('node-cron');
 const Product = require('./models/product');
 const updateStatus = require('./utils/updateStatus');
+const generateDailyReport = require('./utils/generateDailyReport');
 
 const productRoutes = require('./routes/products');
 
@@ -37,5 +38,23 @@ cron.schedule('* * * * *', async () => {
     }
   } catch (err) {
     console.error("Error in cron job:", err);
+  }
+});
+
+cron.schedule('10 8 * * *', async () => {
+  console.log("Running daily report generation...");
+  try {
+    const report = await generateDailyReport();
+
+    // Save to local file (optional)
+    const fs = require('fs');
+    fs.writeFileSync(
+      `./daily-report-${new Date().toISOString().split('T')[0]}.json`,
+      JSON.stringify(report, null, 2)
+    );
+
+    console.log("✅ Daily report generated.");
+  } catch (err) {
+    console.error("Error generating report:", err);
   }
 });

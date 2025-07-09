@@ -12,11 +12,19 @@ const productSchema = new mongoose.Schema({
   expiry_date: Date,
   manufacture_date: Date,
   supplier: String,
-  batch_number: { type: String, unique: true },
+  batchNumber: { type: String, required: true, unique: true },
   status: { type: String, default: 'fresh' }, // fresh, near_expiry, expired
   discounted: { type: Boolean, default: false },
   donated: { type: Boolean, default: false },
-  created_at: { type: Date, default: Date.now }
+  created_at: { type: Date, default: Date.now },
+  removed: { type: Boolean, default: false },
+  action_history: [{
+  action: String,
+  performed_by: String,
+  timestamp: Date
+  }]
+
+
 });
 
 module.exports = mongoose.model('Product', productSchema);
