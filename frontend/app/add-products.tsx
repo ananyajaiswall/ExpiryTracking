@@ -4,8 +4,10 @@ import { View, Text, TextInput, Button, ScrollView, StyleSheet, Alert } from 're
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 
+// Define the API URL from environment variables or a fallback
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.114:5000';
 
+// Define a union type for all possible product keys
 type ProductKey =
   | 'name'
   | 'quantity'
@@ -20,6 +22,7 @@ type ProductKey =
 export default function AddProduct() {
   const router = useRouter();
 
+  // Initialize product state with empty strings, typed using ProductKey
   const [product, setProduct] = useState<Record<ProductKey, string>>({
     name: '',
     quantity: '',
@@ -32,38 +35,43 @@ export default function AddProduct() {
     entryDate: '',
   });
 
+  // Handler for updating product fields
   const handleChange = (key: ProductKey, value: string) => {
     setProduct(prev => ({ ...prev, [key]: value }));
   };
 
+  // Handler for submitting the product data to the backend
   const handleSubmit = async () => {
-  try {
-    console.log("Submitting product:", product);
+    try {
+      console.log("Submitting product:", product);
 
-    const response = await fetch(`${API_URL}/products/add`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(product),
-    });
+      // Make a POST request to the backend API
+      const response = await fetch(`${API_URL}/products/add`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(product),
+      });
 
-    const data = await response.json();
-    console.log("Server response:", data);
+      const data = await response.json();
+      console.log("Server response:", data);
 
-    if (response.ok) {
-      Alert.alert('✅ Success', 'Product added!');
-      router.push('/');
-    } else {
-      Alert.alert('❌ Error', data.message || 'Failed to add product');
+      // Check if the response was successful
+      if (response.ok) {
+        Alert.alert('✅ Success', 'Product added!'); // Use Alert for user feedback
+        router.push('/'); // Navigate back to the home screen on success
+      } else {
+        // Show error message from backend or a generic one
+        Alert.alert('❌ Error', data.message || 'Failed to add product');
+      }
+
+    } catch (error) {
+      // Handle network or other submission errors
+      console.error('Network error:', error);
+      Alert.alert('❌ Error', 'Could not connect to backend');
     }
+  };
 
-  } catch (error) {
-    console.error('Network error:', error);
-    Alert.alert('❌ Error', 'Could not connect to backend');
-  }
-};
-
-
-
+  // Function to pre-fill the form with test data
   const fillTestData = () => {
     setProduct({
       name: 'Greek Yogurt',
@@ -82,21 +90,24 @@ export default function AddProduct() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.header}>➕ Add New Product</Text>
 
+      {/* Map through product keys to create TextInput fields dynamically */}
       {(Object.keys(product) as ProductKey[]).map(key => (
         <TextInput
           key={key}
+          // Format placeholder text (e.g., "expiryDate" -> "Expiry Date")
           placeholder={key
             .replace(/([A-Z])/g, ' $1')
             .replace(/^./, str => str.toUpperCase())}
           value={product[key]}
           onChangeText={text => handleChange(key, text)}
           style={styles.input}
-          autoCapitalize="none"
+          autoCapitalize="none" // Prevent unwanted auto-capitalization
         />
       ))}
 
       <View style={styles.buttonContainer}>
         <Button title="Submit Product" onPress={handleSubmit} />
+        {/* Button to fill form with test data */}
         <Button title="🧪 Fill Test Data" onPress={fillTestData} color="#6B7280" />
       </View>
     </ScrollView>
